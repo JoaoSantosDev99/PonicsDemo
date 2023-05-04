@@ -4,7 +4,8 @@ import sell from "../../assets/box.png";
 import boost from "../../assets/boost.png";
 import lock from "../../assets/padlock.png";
 
-const Greenhouse = ({ sold, boosted, sellable }) => {
+const Greenhouse = ({ sold, boosted, sellable, states }) => {
+  console.log("In greenhouse", sellable);
   return (
     <div
       className={
@@ -13,16 +14,9 @@ const Greenhouse = ({ sold, boosted, sellable }) => {
           : "max-w-3xl relative rounded-xl py-10 px-10 gap-2 flex-wrap bg-white w-full flex justify-center"
       }
     >
-      <Plant />
-      <Plant />
-      <Plant />
-      <Plant />
-      <Plant />
-      <Plant />
-      <Plant />
-      <Plant />
-      <Plant />
-      <Plant />
+      {states?.map((item) => (
+        <Plant state={item} />
+      ))}
 
       {sold && (
         <div className="absolute flex justify-center items-center rounded-xl bg-[#000000ad] bottom-0 top-0 right-0 left-0">
@@ -36,7 +30,6 @@ const Greenhouse = ({ sold, boosted, sellable }) => {
           </div>
         </div>
       )}
-
       {!sold && (
         <div className="absolute bottom-3 right-4 flex gap-1">
           {boosted ? (
