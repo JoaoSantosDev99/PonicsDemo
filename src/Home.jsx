@@ -35,9 +35,8 @@ const Home = () => {
 
   const [plantsState, setPlantsState] = useState([]);
   const [planstReadyTosell, setplanstReadyTosell] = useState([]);
-
-  const [allStates, setallStates] = useState(false);
-
+  const [planstSold, setplanstSold] = useState([]);
+  const [isBoosted, setBoosted] = useState([]);
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
   );
@@ -91,7 +90,11 @@ const Home = () => {
 
     for (let i = 0; i < greenHouses; i++) {
       const plantStates = await plantContract.getPlantsState(address, i);
+      const soldState = await plantContract.isGreenhouseSold(address, i);
+      const isBoosted = await plantContract.isFertilized(address, i);
 
+      setBoosted((prevState) => [...prevState, isBoosted]);
+      setplanstSold((prevState) => [...prevState, soldState]);
       setPlantsState((prevState) => [...prevState, plantStates[0]]);
       setplanstReadyTosell((prevState) => [...prevState, plantStates[1]]);
     }
@@ -142,47 +145,18 @@ const Home = () => {
   return (
     <section className="w-full flex justify-center items-center">
       <div className="relative max-w-screen-xl flex-col items-center w-full flex justify-center py-20 gap-5">
-        {allStates ? (
-          <button
-            onClick={() => setallStates(false)}
-            className="bg-[#fff] px-10 py-4 rounded-xl"
-          >
-            Hidde demos
-          </button>
-        ) : (
-          <button
-            onClick={() => setallStates(true)}
-            className="bg-[#fff] px-10 py-4 rounded-xl"
-          >
-            See all states
-          </button>
-        )}
-        {allStates && (
-          <>
-            <h2 className="p-3 bg-purple-500 mt-10 rounded-xl">Growing</h2>
-            <Greenhouse />
-
-            <h2 className="p-3 bg-purple-500 mt-10 rounded-xl">
-              Ready to Sell
-            </h2>
-            <Greenhouse sellable />
-
-            <h2 className="p-3 bg-purple-500 mt-10 rounded-xl">
-              Growing with fertilizers
-            </h2>
-            <Greenhouse boosted />
-
-            <h2 className="p-3 bg-purple-500 mt-10 rounded-xl">Sold</h2>
-            <Greenhouse sold />
-          </>
-        )}
         {greenhBalance > 0 &&
           plantsState
-            ?.slice(-greenhBalance)
-            .map((item, index) => (
+            ?.map((item, index) => (
               <Greenhouse
                 states={item}
                 sellable={planstReadyTosell[index]}
+                index={index}
+                sold={planstSold[index]}
+                key={index}
+                signer={signer}
+                address={address}
+                boosted={isBoosted[index]}
               />
             ))
             .reverse()}

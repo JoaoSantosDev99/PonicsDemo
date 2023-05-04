@@ -3,9 +3,46 @@ import fert from "../../assets/fertilizer.png";
 import sell from "../../assets/box.png";
 import boost from "../../assets/boost.png";
 import lock from "../../assets/padlock.png";
+import { ethers } from "ethers";
 
-const Greenhouse = ({ sold, boosted, sellable, states }) => {
-  console.log("In greenhouse", sellable);
+import plantsAbi from "../../contracts/plants_abi.json";
+import fertAbi from "../../contracts/fert_abi.json";
+
+const Greenhouse = ({
+  sold,
+  boosted,
+  sellable,
+  states,
+  index,
+  address,
+  signer,
+}) => {
+  const plantsAddress = "0xec71648D56e960921c297A7Ef7B1d1f953B56EFE";
+  const fertAddress = "0x95B485559823d48929ce446C7d9e211Cf682C8Bd";
+
+  const plantContract = new ethers.Contract(plantsAddress, plantsAbi, signer);
+  const fertContract = new ethers.Contract(fertAddress, fertAbi, signer);
+
+  const sellPackage = async () => {
+    const sellPack = await plantContract.sellPackage(address, index);
+
+    await sellPack.wait();
+    alert("Success!");
+  };
+
+  const boostUnit = async () => {
+    const approve = await fertContract.approve(
+      plantsAddress,
+      ethers.utils.parseEther("1")
+    );
+    await approve.wait();
+
+    const boostUnits = await plantContract.addFertilizer(address, index);
+    await boostUnits.wait();
+
+    alert("Success!");
+  };
+
   return (
     <div
       className={
@@ -30,6 +67,7 @@ const Greenhouse = ({ sold, boosted, sellable, states }) => {
           </div>
         </div>
       )}
+
       {!sold && (
         <div className="absolute bottom-3 right-4 flex gap-1">
           {boosted ? (
@@ -42,15 +80,23 @@ const Greenhouse = ({ sold, boosted, sellable, states }) => {
               <h2 className="text-white text-xs">Boosted!</h2>
             </div>
           ) : (
-            <button className="p-2 bg-[#37b2b6dc] rounded-xl w-16 h-16 border-[3px] border-black">
-              <img
-                src={fert}
-                alt=""
-              />
-            </button>
+            <>
+              {!sellable && (
+                <button
+                  onClick={boostUnit}
+                  className="p-2 bg-[#37b2b6dc] rounded-xl w-16 h-16 border-[3px] border-black"
+                >
+                  <img
+                    src={fert}
+                    alt=""
+                  />
+                </button>
+              )}
+            </>
           )}
 
           <button
+            onClick={sellPackage}
             disabled={!sellable}
             className="p-2 relative bg-[#3d3d3ddc] rounded-xl w-16 h-16 border-[3px] border-black"
           >

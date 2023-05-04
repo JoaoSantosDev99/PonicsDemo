@@ -34,7 +34,7 @@ const ethereumClient = new EthereumClient(wagmiClient, chains);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  <>
     <WagmiConfig client={wagmiClient}>
       <ContextProvider>
         <App />
@@ -44,5 +44,5 @@ root.render(
         ethereumClient={ethereumClient}
       />
     </WagmiConfig>
-  </React.StrictMode>
+  </>
 );
