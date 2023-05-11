@@ -91,17 +91,63 @@
       },
       {
         "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getGreenHouseStates",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "plantedTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "firstPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "thirdPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalPeriod",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Plants.Plant[10]",
+        "name": "_periods",
+        "type": "tuple[10]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
         "name": "_greenHouseUnit",
         "type": "uint256"
       }
     ],
     "name": "getPlantsState",
     "outputs": [
-      {
-        "internalType": "string[10]",
-        "name": "",
-        "type": "string[10]"
-      },
       {
         "internalType": "bool",
         "name": "",
@@ -173,6 +219,25 @@
       {
         "internalType": "uint256",
         "name": "finalPeriod",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "greenHousesSold",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -280,25 +345,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "plantsGrowing",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "ponicAdd",
     "outputs": [
@@ -322,6 +368,25 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "seedsBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_owner",
         "type": "address"
       },
@@ -332,24 +397,6 @@
       }
     ],
     "name": "sellPackage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_ponic",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_fertilizer",
-        "type": "address"
-      }
-    ],
-    "name": "setTokenAdds",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

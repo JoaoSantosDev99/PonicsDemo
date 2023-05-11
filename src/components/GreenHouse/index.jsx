@@ -7,6 +7,8 @@ import { ethers } from "ethers";
 
 import plantsAbi from "../../contracts/plants_abi.json";
 import fertAbi from "../../contracts/fert_abi.json";
+import { useContext } from "react";
+import { AppContext } from "../../context/appContext";
 
 const Greenhouse = ({
   sold,
@@ -16,12 +18,12 @@ const Greenhouse = ({
   index,
   address,
   signer,
+  currentBlock,
 }) => {
-  const plantsAddress = "0xec71648D56e960921c297A7Ef7B1d1f953B56EFE";
-  const fertAddress = "0x95B485559823d48929ce446C7d9e211Cf682C8Bd";
+  const { fertAdd, plantAdd } = useContext(AppContext);
 
-  const plantContract = new ethers.Contract(plantsAddress, plantsAbi, signer);
-  const fertContract = new ethers.Contract(fertAddress, fertAbi, signer);
+  const plantContract = new ethers.Contract(plantAdd, plantsAbi, signer);
+  const fertContract = new ethers.Contract(fertAdd, fertAbi, signer);
 
   const sellPackage = async () => {
     const sellPack = await plantContract.sellPackage(address, index);
@@ -32,7 +34,7 @@ const Greenhouse = ({
 
   const boostUnit = async () => {
     const approve = await fertContract.approve(
-      plantsAddress,
+      plantAdd,
       ethers.utils.parseEther("1")
     );
     await approve.wait();
@@ -52,7 +54,10 @@ const Greenhouse = ({
       }
     >
       {states?.map((item) => (
-        <Plant state={item} />
+        <Plant
+          state={item}
+          currentBlock={currentBlock}
+        />
       ))}
 
       {sold && (

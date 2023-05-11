@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 import { useWeb3Modal } from "@web3modal/react";
 import Greenhouse from "./components/GreenHouse";
@@ -13,11 +13,10 @@ import greenh from "./assets/greenhouse2.png";
 import coinAbi from "./contracts/coin_abi.json";
 import fertAbi from "./contracts/fert_abi.json";
 import plantsAbi from "./contracts/plants_abi.json";
+import { AppContext } from "./context/appContext";
 
 const Home = () => {
-  const coinsAddress = "0x17f89C640268966f8804C01b052E70e66C3680e6";
-  const fertAddress = "0x95B485559823d48929ce446C7d9e211Cf682C8Bd";
-  const plantsAddress = "0xec71648D56e960921c297A7Ef7B1d1f953B56EFE";
+  const { tokenAdd, fertAdd, plantAdd } = useContext(AppContext);
 
   const { data: signer } = useSigner();
   const { open } = useWeb3Modal();
@@ -37,13 +36,16 @@ const Home = () => {
   const [planstReadyTosell, setplanstReadyTosell] = useState([]);
   const [planstSold, setplanstSold] = useState([]);
   const [isBoosted, setBoosted] = useState([]);
+
   const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
+    "https://rpc.ankr.com/polygon_mumbai"
   );
 
+  const [currentBlock, setCurrentBlock] = useState(35467298);
+
   const connectWallet = () => {
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 80001) {
+      switchNetwork?.(80001);
     }
 
     try {
@@ -53,56 +55,59 @@ const Home = () => {
     }
   };
 
-  const coinContract = new ethers.Contract(
-    coinsAddress,
-    coinAbi,
-    staticProvider
-  );
+  const coinContract = new ethers.Contract(tokenAdd, coinAbi, staticProvider);
+
   const plantContract = new ethers.Contract(
-    plantsAddress,
+    plantAdd,
     plantsAbi,
     staticProvider
   );
-  const fertContract = new ethers.Contract(
-    fertAddress,
-    fertAbi,
-    staticProvider
-  );
+
+  const fertContract = new ethers.Contract(fertAdd, fertAbi, staticProvider);
 
   const fetchData = async () => {
-    const seedBal = await plantContract.plantsBalance(address);
-    const incubSeed = await plantContract.plantsGrowing(address);
+    const seedBal = await plantContract.seedsBalance(address);
+    const incubSeed = await plantContract.plantsBalance(address);
     const fertBal = await fertContract.balanceOf(address);
     const coinBal = await coinContract.balanceOf(address);
 
+    const currenBlock = staticProvider.blockNumber;
+    const timestamp = (await staticProvider.getBlock(currenBlock)).timestamp;
+
+    setCurrentBlock(timestamp);
     setSeedBalance(bigNumParser(seedBal));
     setgrowningBalance(bigNumParser(incubSeed));
     setfertBalance(toNumb(fertBal));
     setcoinsBalance(toNumb(coinBal));
   };
 
-  // setInterval(async () => {
-  //   await fetchGreenHouses();
-  // }, 5000);
-
   const fetchGreenHouses = async () => {
     const greenHouses = await plantContract.greenHouseBalance(address);
 
     for (let i = 0; i < greenHouses; i++) {
-      const plantStates = await plantContract.getPlantsState(address, i);
       const soldState = await plantContract.isGreenhouseSold(address, i);
+      const isReady = await plantContract.getPlantsState(address, i);
       const isBoosted = await plantContract.isFertilized(address, i);
+      const rawStates = await plantContract.getGreenHouseStates(address, i);
 
-      setBoosted((prevState) => [...prevState, isBoosted]);
       setplanstSold((prevState) => [...prevState, soldState]);
-      setPlantsState((prevState) => [...prevState, plantStates[0]]);
-      setplanstReadyTosell((prevState) => [...prevState, plantStates[1]]);
+      setplanstReadyTosell((prevState) => [...prevState, isReady]);
+      setBoosted((prevState) => [...prevState, isBoosted]);
+
+      setPlantsState((prevState) => [...prevState, rawStates]);
     }
 
     setgreenhBalance(bigNumParser(greenHouses));
   };
 
   useEffect(() => {
+    setInterval(async () => {
+      const currenBlock = staticProvider.blockNumber;
+      const timestamp = (await staticProvider.getBlock(currenBlock)).timestamp;
+      setCurrentBlock(timestamp);
+      console.log(timestamp);
+    }, 5000);
+
     fetchData();
     fetchGreenHouses();
   }, []);
@@ -119,15 +124,11 @@ const Home = () => {
     if (signer === undefined) {
       connectWallet();
     }
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 80001) {
+      switchNetwork?.(80001);
     }
 
-    const writePlantContract = new ethers.Contract(
-      plantsAddress,
-      plantsAbi,
-      signer
-    );
+    const writePlantContract = new ethers.Contract(plantAdd, plantsAbi, signer);
 
     try {
       const incubate = await writePlantContract.incubatePlants();
@@ -149,10 +150,11 @@ const Home = () => {
           plantsState
             ?.map((item, index) => (
               <Greenhouse
+                currentBlock={currentBlock}
+                sold={planstSold[index]}
                 states={item}
                 sellable={planstReadyTosell[index]}
                 index={index}
-                sold={planstSold[index]}
                 key={index}
                 signer={signer}
                 address={address}
@@ -177,7 +179,7 @@ const Home = () => {
               alt=""
               className="w-10 h-10"
             />
-            <h2>{seedBalance - growningBalance}</h2>
+            <h2>{seedBalance}</h2>
           </div>
           <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
             <img
