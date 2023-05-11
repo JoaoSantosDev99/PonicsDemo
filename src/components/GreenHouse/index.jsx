@@ -7,7 +7,7 @@ import { ethers } from "ethers";
 
 import plantsAbi from "../../contracts/plants_abi.json";
 import fertAbi from "../../contracts/fert_abi.json";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/appContext";
 
 const Greenhouse = ({
@@ -21,6 +21,49 @@ const Greenhouse = ({
   currentBlock,
 }) => {
   const { fertAdd, plantAdd } = useContext(AppContext);
+
+  const [isSold, setSold] = useState(sold);
+  const [isReady, setisReady] = useState(sellable);
+  const [isBoosted, setisBoosted] = useState(boosted);
+
+  const bigNumParser = (bigNum) => {
+    return Number(ethers.utils.formatUnits(bigNum, 0));
+  };
+
+  // const creationBlock = states[0];
+
+  // const delta = Number(currentBlock) - creationBlock;
+
+  // const secondStage = bigNumParser(state[1]) + bigNumParser(state[2]);
+
+  // const thirdtage =
+  //   bigNumParser(state[1]) + bigNumParser(state[2]) + bigNumParser(state[3]);
+
+  // const fourthStage =
+  //   bigNumParser(state[1]) +
+  //   bigNumParser(state[2]) +
+  //   bigNumParser(state[3]) +
+  //   bigNumParser(state[4]);
+
+  const fetchUnitData = async () => {
+    if (!sold) {
+      const soldState = await plantContract.isGreenhouseSold(address, index);
+      const isReady = await plantContract.getPlantsState(address, index);
+      const boosted = await plantContract.isFertilized(address, index);
+
+      setisReady(isReady);
+      setisBoosted(boosted);
+      setSold(soldState);
+    }
+  };
+
+  useEffect(() => {
+    if (!isSold) {
+      setInterval(() => {
+        fetchUnitData();
+      }, 5000);
+    }
+  });
 
   const plantContract = new ethers.Contract(plantAdd, plantsAbi, signer);
   const fertContract = new ethers.Contract(fertAdd, fertAbi, signer);
@@ -43,22 +86,27 @@ const Greenhouse = ({
     await boostUnits.wait();
 
     alert("Success!");
+    fetchUnitData();
   };
 
   return (
     <div
       className={
-        boosted
+        isBoosted
           ? "max-w-3xl relative border-[4px] border-[#000000] rounded-xl py-10 px-10 gap-2 flex-wrap bg-[#3af2f23f] w-full flex justify-center"
           : "max-w-3xl relative rounded-xl py-10 px-10 gap-2 flex-wrap bg-white w-full flex justify-center"
       }
     >
       {states?.map((item) => (
         <Plant
+          boosted={isBoosted}
           state={item}
           currentBlock={currentBlock}
         />
       ))}
+
+      {console.log(isSold, index)}
+      <h2 className="text-2xl">{sold}</h2>
 
       {sold && (
         <div className="absolute flex justify-center items-center rounded-xl bg-[#000000ad] bottom-0 top-0 right-0 left-0">
@@ -75,7 +123,7 @@ const Greenhouse = ({
 
       {!sold && (
         <div className="absolute bottom-3 right-4 flex gap-1">
-          {boosted ? (
+          {isBoosted ? (
             <div className="p-2 bg-[#f534b8fa] flex flex-col items-center rounded-xl w-16 h-16 border-[3px] border-black">
               <img
                 src={boost}
@@ -86,7 +134,7 @@ const Greenhouse = ({
             </div>
           ) : (
             <>
-              {!sellable && (
+              {!isReady && (
                 <button
                   onClick={boostUnit}
                   className="p-2 bg-[#37b2b6dc] rounded-xl w-16 h-16 border-[3px] border-black"
@@ -102,14 +150,14 @@ const Greenhouse = ({
 
           <button
             onClick={sellPackage}
-            disabled={!sellable}
+            disabled={!isReady}
             className="p-2 relative bg-[#3d3d3ddc] rounded-xl w-16 h-16 border-[3px] border-black"
           >
             <img
               src={sell}
               alt=""
             />
-            {!sellable && (
+            {!isReady && (
               <img
                 src={lock}
                 alt=""

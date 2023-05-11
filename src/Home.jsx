@@ -71,10 +71,6 @@ const Home = () => {
     const fertBal = await fertContract.balanceOf(address);
     const coinBal = await coinContract.balanceOf(address);
 
-    const currenBlock = staticProvider.blockNumber;
-    const timestamp = (await staticProvider.getBlock(currenBlock)).timestamp;
-
-    setCurrentBlock(timestamp);
     setSeedBalance(bigNumParser(seedBal));
     setgrowningBalance(bigNumParser(incubSeed));
     setfertBalance(toNumb(fertBal));
@@ -82,9 +78,10 @@ const Home = () => {
   };
 
   const fetchGreenHouses = async () => {
-    const greenHouses = await plantContract.greenHouseBalance(address);
+    const greenHouses = await plantContract.greenHousesBalance(address);
+    const grenBal = bigNumParser(greenHouses);
 
-    for (let i = 0; i < greenHouses; i++) {
+    for (let i = 0; i < grenBal; i++) {
       const soldState = await plantContract.isGreenhouseSold(address, i);
       const isReady = await plantContract.getPlantsState(address, i);
       const isBoosted = await plantContract.isFertilized(address, i);
