@@ -20,7 +20,7 @@ const Greenhouse = ({
   signer,
   currentBlock,
 }) => {
-  const { fertAdd, plantAdd } = useContext(AppContext);
+  const { fertAdd, plantAdd, setisLoading } = useContext(AppContext);
 
   const [isSold, setSold] = useState(sold);
   const [isReady, setisReady] = useState(sellable);
@@ -61,7 +61,7 @@ const Greenhouse = ({
     if (!isSold) {
       setInterval(() => {
         fetchUnitData();
-      }, 5000);
+      }, 10000);
     }
   });
 
@@ -69,13 +69,17 @@ const Greenhouse = ({
   const fertContract = new ethers.Contract(fertAdd, fertAbi, signer);
 
   const sellPackage = async () => {
+    setisLoading(true);
     const sellPack = await plantContract.sellPackage(address, index);
 
     await sellPack.wait();
+    setisLoading(false);
+
     alert("Success!");
   };
 
   const boostUnit = async () => {
+    setisLoading(true);
     const approve = await fertContract.approve(
       plantAdd,
       ethers.utils.parseEther("1")
@@ -84,6 +88,8 @@ const Greenhouse = ({
 
     const boostUnits = await plantContract.addFertilizer(address, index);
     await boostUnits.wait();
+
+    setisLoading(false);
 
     alert("Success!");
     fetchUnitData();

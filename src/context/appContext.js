@@ -8,12 +8,21 @@ const ContextProvider = ({ children }) => {
   const fertAdd = "0x09D417Bc2551159A85091B4f832f5d7DD47515B5";
   const plantAdd = "0xF909a4B7aFD1497C36f9959e59E4bce5fAe5A3A0";
 
+  const staticProvider = new ethers.providers.JsonRpcProvider(
+    "https://rpc.ankr.com/polygon_mumbai"
+  );
+
+  const [isLoading, setisLoading] = useState(false);
+
   return (
     <AppContext.Provider
       value={{
         tokenAdd,
         fertAdd,
         plantAdd,
+        isLoading,
+        setisLoading,
+        staticProvider,
       }}
     >
       {children}

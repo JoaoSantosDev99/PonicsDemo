@@ -9,17 +9,16 @@ import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 import { ethers } from "ethers";
 
 import coinAbi from "./contracts/coin_abi.json";
-import fertAbi from "./contracts/fert_abi.json";
 import plantsAbi from "./contracts/plants_abi.json";
 import { AppContext } from "./context/appContext";
 
-const Store = () => {
-  const { tokenAdd, fertAdd, plantAdd } = useContext(AppContext);
+const Store = ({ fetchInfo }) => {
+  const { tokenAdd, setisLoading, plantAdd } = useContext(AppContext);
 
   const [fertAmount, setFertAmount] = useState(1);
+  const { address, isConnected } = useAccount();
 
   const coinsAddress = tokenAdd;
-  const fertAddress = fertAdd;
   const plantsAddress = plantAdd;
 
   const incrementInput = () => {
@@ -36,7 +35,6 @@ const Store = () => {
 
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
-  const { address } = useAccount();
 
   const connectWallet = () => {
     if (chain?.id !== 80001) {
@@ -51,6 +49,7 @@ const Store = () => {
   };
 
   const buySeeds = async () => {
+    setisLoading(true);
     if (signer === undefined) {
       connectWallet();
     }
@@ -71,13 +70,17 @@ const Store = () => {
       const buyPlant = await plantContract.buyPlant();
       await buyPlant.wait();
 
-      alert("Success!");
+      setisLoading(false);
+      fetchInfo(address);
     } catch (error) {
+      setisLoading(false);
       console.log(error);
     }
   };
 
   const buyFerts = async () => {
+    setisLoading(true);
+
     if (signer === undefined) {
       connectWallet();
     }
@@ -98,8 +101,10 @@ const Store = () => {
       const buyPlant = await plantContract.buyFertilizer(fertAmount);
       await buyPlant.wait();
 
+      setisLoading(false);
       alert("Success!");
     } catch (error) {
+      setisLoading(false);
       console.log(error);
     }
   };

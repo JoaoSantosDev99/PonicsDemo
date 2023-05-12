@@ -4,19 +4,13 @@ import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 import { useWeb3Modal } from "@web3modal/react";
 import Greenhouse from "./components/GreenHouse";
 
-import tokenImg from "./assets/token.png";
-import fertImg from "./assets/fertilizer.png";
-import treeImg from "./assets/seed.png";
-import incubated from "./assets/greenhouse.png";
-import greenh from "./assets/greenhouse2.png";
-
 import coinAbi from "./contracts/coin_abi.json";
 import fertAbi from "./contracts/fert_abi.json";
 import plantsAbi from "./contracts/plants_abi.json";
 import { AppContext } from "./context/appContext";
 
 const Home = () => {
-  const { tokenAdd, fertAdd, plantAdd } = useContext(AppContext);
+  const { tokenAdd, fertAdd, plantAdd, setisLoading } = useContext(AppContext);
 
   const { data: signer } = useSigner();
   const { open } = useWeb3Modal();
@@ -79,10 +73,20 @@ const Home = () => {
 
   const fetchGreenHouses = async () => {
     const greenHouses = await plantContract.greenHousesBalance(address);
-    const grenBal = bigNumParser(greenHouses);
+    const soldAmount = await plantContract.greenHousesSold(address);
 
-    for (let i = 0; i < grenBal; i++) {
+    const grenBal = Number(bigNumParser(greenHouses));
+    const grenSold = Number(bigNumParser(soldAmount));
+
+    const totals = grenBal + grenSold;
+
+    for (let i = 0; i < totals; i++) {
       const soldState = await plantContract.isGreenhouseSold(address, i);
+
+      if (soldState) {
+        setplanstSold((prevState) => [...prevState, soldState]);
+      }
+
       const isReady = await plantContract.getPlantsState(address, i);
       const isBoosted = await plantContract.isFertilized(address, i);
       const rawStates = await plantContract.getGreenHouseStates(address, i);
@@ -118,6 +122,7 @@ const Home = () => {
   };
 
   const incubate = async () => {
+    setisLoading(true);
     if (signer === undefined) {
       connectWallet();
     }
@@ -133,11 +138,11 @@ const Home = () => {
 
       alert("Success");
       fetchData();
+      setisLoading(false);
     } catch (error) {
       console.log(error);
+      setisLoading(false);
     }
-
-    console.log("Incubate");
   };
 
   return (
@@ -167,50 +172,6 @@ const Home = () => {
           <h2 className="text-3xl">Incubate Seeds</h2>
           <h2 className="text-lg"> ( Make sure to have atleast 10 seeds! ) </h2>
         </button>
-
-        {/* Balance Buttons */}
-        <div className="fixed p-2 rounded-md flex gap-3 bottom-12 right-12 bg-[#4c4c4c]">
-          <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
-            <img
-              src={treeImg}
-              alt=""
-              className="w-10 h-10"
-            />
-            <h2>{seedBalance}</h2>
-          </div>
-          <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
-            <img
-              src={incubated}
-              alt=""
-              className="w-10 h-10"
-            />
-            <h2>{growningBalance}</h2>
-          </div>
-          <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
-            <img
-              src={greenh}
-              alt=""
-              className="w-10 h-10"
-            />
-            <h2>{greenhBalance}</h2>
-          </div>
-          <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
-            <img
-              src={fertImg}
-              alt=""
-              className="w-10 h-10"
-            />
-            <h2>{fertBalance}</h2>
-          </div>
-          <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
-            <img
-              src={tokenImg}
-              alt=""
-              className="w-10 h-10"
-            />
-            <h2>{coinsBalance}</h2>
-          </div>
-        </div>
       </div>
     </section>
   );
