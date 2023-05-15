@@ -33,7 +33,6 @@ function App() {
   const [coinsBalance, setcoinsBalance] = useState(0);
   const [growningBalance, setgrowningBalance] = useState(0);
 
-  const [test, settest] = useState("before");
   const bigNumParser = (bigNum) => {
     return ethers.utils.formatUnits(bigNum, 0);
   };
@@ -53,19 +52,19 @@ function App() {
   const fertContract = new ethers.Contract(fertAdd, fertAbi, staticProvider);
 
   const fetchData = async (add) => {
-    console.log("Fetch data ap 1");
-
     const seedBal = await plantContract.seedsBalance(add);
-    const incubSeed = await plantContract.plantsBalance(add);
+    const grenhBal = await plantContract.greenHousesBalance(add);
     const fertBal = await fertContract.balanceOf(add);
     const coinBal = await coinContract.balanceOf(add);
+    const soldAmount = await plantContract.greenHousesSold(add);
 
+    setgreenhBalance(bigNumParser(grenhBal) - bigNumParser(soldAmount));
     setseedBalance(bigNumParser(seedBal));
-    setgrowningBalance(bigNumParser(incubSeed));
+    setgrowningBalance(
+      (bigNumParser(grenhBal) - bigNumParser(soldAmount)) * 10
+    );
     setfertBalance(toNumb(fertBal));
     setcoinsBalance(toNumb(coinBal));
-
-    console.log("Fetch data ap 2");
   };
 
   useEffect(() => {
@@ -92,16 +91,15 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home />}
+            element={<Home userBal={seedBalance} />}
           />
           <Route
             path="/store"
-            element={<Store fetchInfo={settest} />}
+            element={<Store fetchInfo={fetchData} />}
           />
         </Routes>
 
         {/* Balance Buttons */}
-        {test}
         <div className="fixed p-2 rounded-md flex gap-3 bottom-12 right-12 bg-[#4c4c4c]">
           {isConnected ? (
             <div className="flex gap-3">

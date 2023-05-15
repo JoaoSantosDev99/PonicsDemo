@@ -26,7 +26,7 @@ const Plant = ({ state, currentBlock, boosted }) => {
   const firstStage = boosted ? rawFirstStage / 2 : rawFirstStage;
 
   return (
-    <div className="bg-[#eaeaea] p-3 w-32 border rounded-xl flex justify-center items-center h-32">
+    <div className="bg-[#eaeaea] p-3 w-28 h-28 border rounded-xl flex justify-center items-center">
       {delta >= fourthStage ? (
         <img
           src={grown}

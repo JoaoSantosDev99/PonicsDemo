@@ -6,7 +6,7 @@ export const AppContext = createContext();
 const ContextProvider = ({ children }) => {
   const tokenAdd = "0x0Cd3E4c482eDd23F42505ed2b788BB74cEd9A8dd";
   const fertAdd = "0x09D417Bc2551159A85091B4f832f5d7DD47515B5";
-  const plantAdd = "0xF909a4B7aFD1497C36f9959e59E4bce5fAe5A3A0";
+  const plantAdd = "0x0ec77A68958bBD3A7a740337Bf5Ae26Be9D58BAe";
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/polygon_mumbai"

@@ -102,7 +102,7 @@ const Store = ({ fetchInfo }) => {
       await buyPlant.wait();
 
       setisLoading(false);
-      alert("Success!");
+      fetchInfo(address);
     } catch (error) {
       setisLoading(false);
       console.log(error);
