@@ -76,8 +76,8 @@ const Greenhouse = ({
     <div
       className={
         isBoosted
-          ? "max-w-2xl relative rounded-xl py-10 px-10 gap-2 flex-wrap bg-[#3af2f23f] w-full flex justify-center"
-          : "max-w-2xl relative rounded-xl py-10 px-10 gap-2 flex-wrap bg-white w-full flex justify-center"
+          ? "max-w-lg relative rounded-xl py-5 px-5 gap-2 flex-wrap bg-[#3af2f23f] w-full flex justify-center"
+          : "max-w-lg relative rounded-xl py-5 px-5 gap-2 flex-wrap bg-white w-full flex justify-center"
       }
     >
       {state?.map((item) => (
@@ -90,20 +90,19 @@ const Greenhouse = ({
 
       <div className="absolute bottom-3 right-4 flex gap-1">
         {isBoosted ? (
-          <div className="p-2 bg-[#f534b8fa] flex flex-col items-center rounded-xl w-16 h-16 border-[3px] border-black">
+          <div className="p-2 bg-[#f534b8fa] flex flex-col items-center rounded-md w-10 h-10 border-[2px] border-black">
             <img
               src={boost}
               alt=""
-              className="w-8 h-8"
+              className="w-6 h-8"
             />
-            <h2 className="text-white text-xs">Boosted!</h2>
           </div>
         ) : (
           <>
             {!isReady && (
               <button
                 onClick={boostUnit}
-                className="p-2 bg-[#37b2b6dc] rounded-xl w-16 h-16 border-[3px] border-black"
+                className="p-2 bg-[#37b2b6dc] rounded-xl w-8 h-8 border-[3px] border-black"
               >
                 <img
                   src={fert}
@@ -117,17 +116,18 @@ const Greenhouse = ({
         <button
           onClick={sellPackage}
           disabled={!isReady}
-          className="p-2 relative bg-[#3d3d3ddc] rounded-xl w-16 h-16 border-[3px] border-black"
+          className="flex items-center justify-center relative bg-[#3d3d3ddc] rounded-lg w-10 h-10 border-[2px] border-black"
         >
           <img
             src={sell}
             alt=""
+            className="w-6 h-6"
           />
           {!isReady && (
             <img
               src={lock}
               alt=""
-              className="absolute w-7 h-7 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              className="absolute w-4 h-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             />
           )}
         </button>

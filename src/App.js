@@ -13,6 +13,7 @@ import fertImg from "./assets/fertilizer.png";
 import treeImg from "./assets/seed.png";
 import incubated from "./assets/greenhouse.png";
 import greenh from "./assets/greenhouse2.png";
+import sell from "./assets/box.png";
 
 import plantsAbi from "./contracts/plants_abi.json";
 import coinAbi from "./contracts/coin_abi.json";
@@ -32,6 +33,7 @@ function App() {
   const [fertBalance, setfertBalance] = useState(0);
   const [coinsBalance, setcoinsBalance] = useState(0);
   const [growningBalance, setgrowningBalance] = useState(0);
+  const [soldBalance, setsoldBalance] = useState(0);
 
   const bigNumParser = (bigNum) => {
     return ethers.utils.formatUnits(bigNum, 0);
@@ -65,6 +67,7 @@ function App() {
     );
     setfertBalance(toNumb(fertBal));
     setcoinsBalance(toNumb(coinBal));
+    setsoldBalance(bigNumParser(soldAmount));
   };
 
   useEffect(() => {
@@ -91,7 +94,12 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home userBal={seedBalance} />}
+            element={
+              <Home
+                userBal={seedBalance}
+                fetchInfo={fetchData}
+              />
+            }
           />
           <Route
             path="/store"
@@ -126,6 +134,14 @@ function App() {
                   className="w-10 h-10"
                 />
                 <h2>{greenhBalance}</h2>
+              </div>
+              <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
+                <img
+                  src={sell}
+                  alt=""
+                  className="w-10 h-10"
+                />
+                <h2>{soldBalance}</h2>
               </div>
               <div className="flex flex-col px-5 py-2 gap-1 bg-white items-center rounded-md">
                 <img

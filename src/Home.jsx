@@ -63,6 +63,8 @@ const Home = ({ userBal, fetchInfo }) => {
       if (soldState) {
         setplanstSold((prevState) => [...prevState, soldState]);
         setPlantsState((prevState) => [...prevState, []]);
+      } else if (false) {
+        const isReady = await plantContract.getPlantsState(address, i);
       } else {
         const isReady = await plantContract.getPlantsState(address, i);
         const isBoosted = await plantContract.isFertilized(address, i);
@@ -77,21 +79,26 @@ const Home = ({ userBal, fetchInfo }) => {
 
     setgreenhBalance(grenBal);
   };
+  console.log("bal log", greenhBalance === 0);
 
   const refetchGreenHouses = async () => {
-    console.log("before fetch", incubateCount);
+    let localGrenhouseBal = greenhBalance;
+    // In case its the first incubation
+    if (greenhBalance === 0) {
+      localGrenhouseBal = 1;
+    }
 
     const isReady = await plantContract.getPlantsState(
       address,
-      greenhBalance + incubateCount
+      localGrenhouseBal + incubateCount
     );
     const isBoosted = await plantContract.isFertilized(
       address,
-      greenhBalance + incubateCount
+      localGrenhouseBal + incubateCount
     );
     const rawStates = await plantContract.getGreenHouseStates(
       address,
-      greenhBalance + incubateCount
+      localGrenhouseBal + incubateCount
     );
 
     setincubatecount(incubateCount + 1);
@@ -102,7 +109,6 @@ const Home = ({ userBal, fetchInfo }) => {
     setplanstSold((prevState) => [...prevState, false]);
 
     fetchInfo(address);
-    console.log("after increase", incubateCount);
   };
 
   useEffect(() => {
@@ -145,42 +151,46 @@ const Home = ({ userBal, fetchInfo }) => {
 
   return (
     <section className="w-full flex justify-center items-center">
-      <div className="relative max-w-screen-xl flex-col items-center w-full flex justify-center py-20 gap-5">
+      <div className="relative max-w-screen-2xl flex-col items-center w-full flex justify-center py-20 gap-5">
+        {/* New Incubation */}
         <button
           onClick={incubate}
-          className="max-w-md relative flex-col items-center rounded-xl py-10 px-10 gap-2 flex-wrap border-[3px] border-black bg-[#ffda32] w-full flex justify-center"
+          className="max-w-sm w-full relative flex-col items-center rounded-xl py-5 px-2 gap-2 flex-wrap border-[3px] border-black bg-[#ffda32] flex justify-end"
         >
           {userBal < 10 && (
             <div
               onClick={incubate}
-              className="bg-[#010101a8] text-2xl flex justify-center items-center text-white w-full top-0 bottom-0 right-0 left-0 absolute"
+              className="bg-[#010101a8] text-md flex justify-center items-center text-white w-full top-0 bottom-0 right-0 left-0 absolute"
             >
-              Not enought balance for Incubating
+              Not enought balance
             </div>
           )}
 
-          <h2 className="text-3xl">Incubate Seeds</h2>
-          <h2 className="text-lg"> ( Make sure to have atleast 10 seeds! ) </h2>
+          <h2 className="text-xl">Incubate Seeds</h2>
         </button>
-        {greenhBalance > 0 &&
-          plantsState
-            ?.map((item, index) =>
-              planstSold[index] ? (
-                <SoldGreenhouse />
-              ) : (
-                <Greenhouse
-                  currentBlock={currentBlock}
-                  state={item}
-                  sellable={planstReadyTosell[index]}
-                  index={index}
-                  key={index}
-                  signer={signer}
-                  address={address}
-                  boosted={isBoosted[index]}
-                />
+
+        {/* List */}
+        <div className="w-full justify-center items-center gap-2 flex flex-wrap">
+          {greenhBalance > 0 &&
+            plantsState
+              ?.map((item, index) =>
+                planstSold[index] ? (
+                  <SoldGreenhouse />
+                ) : (
+                  <Greenhouse
+                    currentBlock={currentBlock}
+                    state={item}
+                    sellable={planstReadyTosell[index]}
+                    index={index}
+                    key={index}
+                    signer={signer}
+                    address={address}
+                    boosted={isBoosted[index]}
+                  />
+                )
               )
-            )
-            .reverse()}
+              .reverse()}
+        </div>
       </div>
     </section>
   );

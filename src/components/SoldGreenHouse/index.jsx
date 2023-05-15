@@ -6,7 +6,7 @@ const SoldGreenhouse = () => {
   return (
     <div
       className={
-        "max-w-2xl relative rounded-xl py-10 px-10 gap-2 flex-wrap bg-white w-full flex justify-center"
+        "max-w-lg relative rounded-xl py-10 px-10 gap-2 flex-wrap bg-white w-full flex justify-center"
       }
     >
       <SoldPlant />
